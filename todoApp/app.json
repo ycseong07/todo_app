@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "todo_app",
+    "name": "To Do",
+    "description": "Todo App made with React Native",
     "slug": "todoApp",
     "privacy": "public",
     "sdkVersion": "34.0.0",
