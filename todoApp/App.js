@@ -18,29 +18,30 @@ export default class App extends React.Component {
     newToDo: ""
   };
   render() {
-    const { newTodo } = this.state;
+    const { newTodo } = this.state; //1. value는 state에 있고
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-centent" />
-        <Text style={styles.title}> 오늘의 숙제 </Text>
+        <Text style={styles.title}> 숙제는 하고 노니 </Text>
         <View style={styles.card}>
           <TextInput
             style={styles.input}
             placeholder={"할 일 입력"}
-            value={newTodo}
+            value={newTodo} //2.value를 input에 패스
             onChangeText={this._controllNewTodo}
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            <ToDo />
+            <ToDo text={"im TODO---!"} />
           </ScrollView>
         </View>
       </View>
     );
   }
   _controllNewTodo = text => {
+    //3. value관리는 여기서
     this.setState({
       newTodo: text
     });
@@ -57,15 +58,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 30,
     marginTop: 50,
-    fontWeight: "100",
+    fontWeight: "200",
     marginBottom: 30
   },
   card: {
     backgroundColor: "white",
     flex: 1,
     width: width - 25,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
     ...Platform.select({
       ios: {
         shadowColor: "rgb(50,50,50)",
