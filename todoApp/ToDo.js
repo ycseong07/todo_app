@@ -1,5 +1,3 @@
-//목표: 연필버튼을 눌렀을 때 해당 텍스트(props)를 복사해서 state에 보내고 싶음
-
 import React, { Component } from "react";
 import {
   View,
@@ -9,18 +7,26 @@ import {
   Dimensions,
   TextInput
 } from "react-native";
+import PropTypes from "prop-types";
 
 const { width, height } = Dimensions.get("window");
 
 export default class ToDo extends Component {
-  state = {
-    isEditing: false,
-    isCompleted: false,
-    toDoValue: "" // 0. component에 todovalue를 만든다음에
+  constructor(props) {
+    //_startEditing에서 prop을 state에 복사하는 대신 constructor를 사용해서 컴포넌트가 렌더하자마자 할일리스트를 가져오도록
+    super(props);
+    this.state = { isEditing: false, toDoValue: props.text };
+  }
+
+  static propTypes = {
+    text: PropTypes.string.isRequired,
+    isCompleted: PropTypes.bool.isRequired,
+    deleteToDo: PropTypes.func.isRequired,
+    id: PropTypes.string.isCompleted
   };
   render() {
     const { isCompleted, isEditing, toDoValue } = this.state;
-    const { text } = this.props; // 1. text가 props에 있으니까
+    const { text, id, deleteToDo } = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.column}>
@@ -32,11 +38,11 @@ export default class ToDo extends Component {
               ]}
             />
           </TouchableOpacity>
-          {isEditing ? ( // 3. (편집중일때) textinput을 가져와줘.
+          {isEditing ? (
             <TextInput
               style={[
+                styles.Text,
                 styles.input,
-                styles.text,
                 isCompleted ? styles.completedText : styles.uncompletedText
               ]}
               value={toDoValue}
@@ -71,7 +77,7 @@ export default class ToDo extends Component {
                 <Text style={styles.actionText}> ✏️ </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPressOut={() => deleteToDo(id)}>
               <View style={styles.actionContainer}>
                 <Text style={styles.actionText}> ❌ </Text>
               </View>
@@ -89,9 +95,7 @@ export default class ToDo extends Component {
     });
   };
   _startEditing = () => {
-    //2. 편집을 시작하면 text(props)를 가져와서
-    const { text } = this.props;
-    this.setState({ isEditing: true, toDoValue: text });
+    this.setState({ isEditing: true });
   };
   _finishEditing = () => {
     this.setState({
@@ -128,11 +132,12 @@ const styles = StyleSheet.create({
   Text: {
     fontWeight: "600",
     fontSize: 20,
-    marginVertical: 20
+    marginVertical: 10
   },
   completedText: {
     color: "#bbb",
     textDecorationLine: "line-through"
+    //background-image: url ("../images/hero_image.jpg");
   },
   uncompletedText: {
     color: "#353839"
@@ -140,8 +145,7 @@ const styles = StyleSheet.create({
   column: {
     flexDirection: "row",
     alignItems: "center",
-    width: width / 2,
-    justifyContent: "space-between"
+    width: width / 2
   },
   actions: {
     flexDirection: "row"

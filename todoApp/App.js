@@ -9,41 +9,98 @@ import {
   Platform,
   ScrollView
 } from "react-native";
+import { AppLoading } from "expo";
 import ToDo from "./ToDo";
+import uuidv1 from "uuid/v1";
 
 const { height, width } = Dimensions.get("window");
 
 export default class App extends React.Component {
   state = {
-    newToDo: ""
+    newToDo: "",
+    loadedToDos: false, //목록 추가떄마다 디스크에서 ToDo를 로딩해서 저장해야함. 앱을 열면 투두를 리스트에서 가져와야하고.
+    toDos: {}
+  };
+  componentDidMount = () => {
+    // 마운트가 끝나면 _loadtodos 를 실행!
+    this._loadToDos();
   };
   render() {
-    const { newTodo } = this.state; //1. value는 state에 있고
+    const { newToDo, loadedToDos, toDos } = this.state; //1. value는 state에 있고
+    console.log(toDos);
+    if (!loadedToDos) {
+      return <AppLoading />;
+    }
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-centent" />
-        <Text style={styles.title}> 숙제는 하고 노니 </Text>
+        <Text style={styles.title}> OO아, 숙제는 하고 노니? </Text>
         <View style={styles.card}>
           <TextInput
             style={styles.input}
-            placeholder={"할 일 입력"}
-            value={newTodo} //2.value를 input에 패스
-            onChangeText={this._controllNewTodo}
+            placeholder={"오늘 할 일"}
+            value={newToDo} //2.value를 input에 패스
+            onChangeText={this._controllNewToDo}
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
+            onSubmitEditing={this._addToDo} //done 키를 눌렀을 때
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            <ToDo text={"im TODO---!"} />
+            {Object.values(toDos).map(toDo => (
+              <ToDo key={toDo.id} {...toDo} deleteToDo={this._deleteToDo} />
+            ))}
           </ScrollView>
         </View>
       </View>
     );
   }
-  _controllNewTodo = text => {
+  _controllNewToDo = text => {
     //3. value관리는 여기서
     this.setState({
-      newTodo: text
+      newToDo: text
+    });
+  };
+  _loadToDos = () => {
+    this.setState({
+      loadedToDos: true
+    });
+  };
+  _addToDo = () => {
+    // to do를 state에서 가져오는 함수
+    const { newToDo } = this.state;
+    if (newToDo !== "") {
+      this.setState(prevState => {
+        const ID = uuidv1();
+        const newToDoObject = {
+          [ID]: {
+            id: ID,
+            isCompleted: false,
+            text: newToDo,
+            createdAt: Date.now()
+          }
+        };
+        const newState = {
+          ...prevState,
+          newToDo: "", //flush 작업(비워버리는거)
+          toDos: {
+            ...prevState.toDos,
+            ...newToDoObject
+          }
+        };
+        return { ...newState };
+      });
+    }
+  };
+  _deleteToDo = id => {
+    this.setState(prevState => {
+      const toDos = prevState.toDos;
+      delete toDos[id];
+      const newState = {
+        ...prevState,
+        ...toDos
+      };
+      return { ...newState };
     });
   };
 }
