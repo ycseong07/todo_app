@@ -33,7 +33,7 @@ export default class App extends React.Component {
     }
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-centent" />
+        <StatusBar barStyle="light-content" />
         <Text style={styles.title}> OO아, 숙제는 하고 노니? </Text>
         <View style={styles.card}>
           <TextInput
@@ -48,7 +48,15 @@ export default class App extends React.Component {
           />
           <ScrollView contentContainerStyle={styles.toDos}>
             {Object.values(toDos).map(toDo => (
-              <ToDo key={toDo.id} {...toDo} deleteToDo={this._deleteToDo} />
+              <ToDo
+                key={toDo.id}
+                {...toDo}
+                deleteToDo={this._deleteToDo}
+                unCompleteToDo={this._unCompleteToDo}
+                completeToDo={this._completeToDo}
+                updateToDo={this._updateToDo}
+                {...toDo}
+              /> //(un)completetodo는 투두컴포넌트의 새 함수로 만들거임
             ))}
           </ScrollView>
         </View>
@@ -103,6 +111,54 @@ export default class App extends React.Component {
       return { ...newState };
     });
   };
+  _unCompleteToDo = id => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState, //이전에 있던것들은 주고!
+        toDos: {
+          // 거기에 +toDos
+          ...prevState.toDos,
+          [id]: {
+            //id를 가지고 있는 새로운게 있다면 그걸 덮어쓰고!
+            ...prevState.toDos[id],
+            isCompleted: false
+          }
+        }
+      };
+      return { ...newState };
+    });
+  };
+  _completeToDo = id => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]: {
+            ...prevState.toDos[id],
+            isCompleted: true
+          }
+        }
+      };
+      return { ...newState };
+    });
+  };
+
+  _updateToDo = (id, text) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]: {
+            ...prevState.toDos[id],
+            text: text
+          }
+        }
+      };
+      return { ...newState };
+    });
+  };
 }
 
 const styles = StyleSheet.create({
@@ -129,7 +185,7 @@ const styles = StyleSheet.create({
         shadowColor: "rgb(50,50,50)",
         shadowOpacity: 0.5,
         shadowRadius: 5,
-        ShadowOffset: {
+        shadowOffset: {
           height: -1, //위아래로 안움직이게
           width: 0 // 보더 안에 있도록. 1로 설정하면 움직임
         }

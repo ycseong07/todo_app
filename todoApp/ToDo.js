@@ -22,11 +22,14 @@ export default class ToDo extends Component {
     text: PropTypes.string.isRequired,
     isCompleted: PropTypes.bool.isRequired,
     deleteToDo: PropTypes.func.isRequired,
-    id: PropTypes.string.isCompleted
+    id: PropTypes.string.isRequired,
+    unCompleteToDo: PropTypes.func.isRequired,
+    completeToDo: PropTypes.func.isRequired,
+    updateToDo: PropTypes.func.isRequired
   };
   render() {
-    const { isCompleted, isEditing, toDoValue } = this.state;
-    const { text, id, deleteToDo } = this.props;
+    const { isEditing, toDoValue } = this.state;
+    const { text, id, deleteToDo, isCompleted } = this.props; //isCompleted를 state말고 props에서 살펴보자! 그러면 이제 todo.js말고 app.js에서 작업이 됨.
     return (
       <View style={styles.container}>
         <View style={styles.column}>
@@ -41,7 +44,7 @@ export default class ToDo extends Component {
           {isEditing ? (
             <TextInput
               style={[
-                styles.Text,
+                styles.text,
                 styles.input,
                 isCompleted ? styles.completedText : styles.uncompletedText
               ]}
@@ -54,7 +57,7 @@ export default class ToDo extends Component {
           ) : (
             <Text
               style={[
-                styles.Text,
+                styles.text,
                 isCompleted ? styles.completedText : styles.uncompletedText
               ]}
             >
@@ -88,16 +91,21 @@ export default class ToDo extends Component {
     );
   }
   _toggleComplete = () => {
-    this.setState(prevState => {
-      return {
-        isCompleted: !prevState.isCompleted
-      };
-    });
+    //isCompleted를 state말고 props에서 살펴보자!
+    const { isCompleted, unCompleteToDo, completeToDo, id } = this.props;
+    if (isCompleted) {
+      unCompleteToDo(id);
+    } else {
+      completeToDo(id);
+    }
   };
   _startEditing = () => {
     this.setState({ isEditing: true });
   };
   _finishEditing = () => {
+    const { toDoValue } = this.state;
+    const { id, updateToDo } = this.props;
+    updateToDo(id, toDoValue);
     this.setState({
       isEditing: false
     });
@@ -119,7 +127,7 @@ const styles = StyleSheet.create({
   circle: {
     width: 30,
     height: 30,
-    borderRadius: 15, // 원을 만드려면borderRadius는 항상 width와 height의 절반이어야함
+    borderRadius: 15,
     borderWidth: 3,
     marginRight: 20
   },
@@ -129,7 +137,7 @@ const styles = StyleSheet.create({
   uncompletedCircle: {
     borderColor: "#22d6b2"
   },
-  Text: {
+  text: {
     fontWeight: "600",
     fontSize: 20,
     marginVertical: 10
@@ -156,6 +164,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: 10,
-    width: width / 2
+    width: width / 2,
+    paddingBottom: 5
   }
 });
