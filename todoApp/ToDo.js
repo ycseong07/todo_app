@@ -65,6 +65,7 @@ export default class ToDo extends Component {
             </Text>
           )}
         </View>
+        
         {isEditing ? (
           <View style={styles.actions}>
             <TouchableOpacity onPressOut={this._finishEditing}>
@@ -145,7 +146,6 @@ const styles = StyleSheet.create({
   completedText: {
     color: "#bbb",
     textDecorationLine: "line-through"
-    //background-image: url ("../images/hero_image.jpg");
   },
   uncompletedText: {
     color: "#353839"
@@ -166,5 +166,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: width / 2,
     paddingBottom: 5
-  }
+  },
+  stamp: {}
 });

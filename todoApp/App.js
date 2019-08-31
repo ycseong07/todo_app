@@ -7,7 +7,8 @@ import {
   TextInput,
   Dimensions,
   Platform,
-  ScrollView
+  ScrollView,
+  AsyncStorage
 } from "react-native";
 import { AppLoading } from "expo";
 import ToDo from "./ToDo";
@@ -27,7 +28,6 @@ export default class App extends React.Component {
   };
   render() {
     const { newToDo, loadedToDos, toDos } = this.state; //1. value는 state에 있고
-    console.log(toDos);
     if (!loadedToDos) {
       return <AppLoading />;
     }
@@ -47,17 +47,21 @@ export default class App extends React.Component {
             onSubmitEditing={this._addToDo} //done 키를 눌렀을 때
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            {Object.values(toDos).map(toDo => (
-              <ToDo
-                key={toDo.id}
-                {...toDo}
-                deleteToDo={this._deleteToDo}
-                unCompleteToDo={this._unCompleteToDo}
-                completeToDo={this._completeToDo}
-                updateToDo={this._updateToDo}
-                {...toDo}
-              /> //(un)completetodo는 투두컴포넌트의 새 함수로 만들거임
-            ))}
+            {Object.values(toDos)
+              .reverse()
+              .map((
+                toDo // reverse해서 새거가 맨위로 오게!
+              ) => (
+                <ToDo
+                  key={toDo.id}
+                  {...toDo}
+                  deleteToDo={this._deleteToDo}
+                  unCompleteToDo={this._unCompleteToDo}
+                  completeToDo={this._completeToDo}
+                  updateToDo={this._updateToDo}
+                  {...toDo}
+                /> //(un)completetodo는 투두컴포넌트의 새 함수로 만들거임
+              ))}
           </ScrollView>
         </View>
       </View>
@@ -69,7 +73,14 @@ export default class App extends React.Component {
       newToDo: text
     });
   };
-  _loadToDos = () => {
+  _loadToDos = async () => {
+    try {
+      const toDos = await AsyncStorage.getItem("toDos"); //asnyc에서 await안하면 이 작업 끝날때까지 안기다리니까 오류남.
+      const parsedToDos = JSON.parse(toDos);
+      this.setState({ loadToDos: true, toDos: parsedToDos });
+    } catch (err) {
+      console.log(err);
+    }
     this.setState({
       loadedToDos: true
     });
@@ -96,6 +107,7 @@ export default class App extends React.Component {
             ...newToDoObject
           }
         };
+        this._saveToDos(newState.toDos);
         return { ...newState };
       });
     }
@@ -108,6 +120,7 @@ export default class App extends React.Component {
         ...prevState,
         ...toDos
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   };
@@ -125,6 +138,7 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   };
@@ -140,6 +154,7 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   };
@@ -156,8 +171,15 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
+  };
+
+  _saveToDos = newToDos => {
+    const saveToDos = AsyncStorage.setItem("toDos", JSON.stringify(newToDos));
+    // key가 toDos, value가 newToDos
+    // JSON은 글로벌 오브젝트, obj인 newToDos를 string으로 바꿔줘!
   };
 }
 
