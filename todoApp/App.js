@@ -19,15 +19,14 @@ const { height, width } = Dimensions.get("window");
 export default class App extends React.Component {
   state = {
     newToDo: "",
-    loadedToDos: false, //목록 추가떄마다 디스크에서 ToDo를 로딩해서 저장해야함. 앱을 열면 투두를 리스트에서 가져와야하고.
+    loadedToDos: false,
     toDos: {}
   };
   componentDidMount = () => {
-    // 마운트가 끝나면 _loadtodos 를 실행!
     this._loadToDos();
   };
   render() {
-    const { newToDo, loadedToDos, toDos } = this.state; //1. value는 state에 있고
+    const { newToDo, loadedToDos, toDos } = this.state;
     if (!loadedToDos) {
       return <AppLoading />;
     }
@@ -39,19 +38,17 @@ export default class App extends React.Component {
           <TextInput
             style={styles.input}
             placeholder={"오늘 할 일"}
-            value={newToDo} //2.value를 input에 패스
+            value={newToDo}
             onChangeText={this._controllNewToDo}
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
-            onSubmitEditing={this._addToDo} //done 키를 눌렀을 때
+            onSubmitEditing={this._addToDo}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
             {Object.values(toDos)
               .reverse()
-              .map((
-                toDo // reverse해서 새거가 맨위로 오게!
-              ) => (
+              .map(toDo => (
                 <ToDo
                   key={toDo.id}
                   {...toDo}
@@ -60,7 +57,7 @@ export default class App extends React.Component {
                   completeToDo={this._completeToDo}
                   updateToDo={this._updateToDo}
                   {...toDo}
-                /> //(un)completetodo는 투두컴포넌트의 새 함수로 만들거임
+                />
               ))}
           </ScrollView>
         </View>
@@ -68,14 +65,13 @@ export default class App extends React.Component {
     );
   }
   _controllNewToDo = text => {
-    //3. value관리는 여기서
     this.setState({
       newToDo: text
     });
   };
   _loadToDos = async () => {
     try {
-      const toDos = await AsyncStorage.getItem("toDos"); //asnyc에서 await안하면 이 작업 끝날때까지 안기다리니까 오류남.
+      const toDos = await AsyncStorage.getItem("toDos");
       const parsedToDos = JSON.parse(toDos);
       this.setState({ loadToDos: true, toDos: parsedToDos });
     } catch (err) {
@@ -86,7 +82,6 @@ export default class App extends React.Component {
     });
   };
   _addToDo = () => {
-    // to do를 state에서 가져오는 함수
     const { newToDo } = this.state;
     if (newToDo !== "") {
       this.setState(prevState => {
@@ -101,7 +96,7 @@ export default class App extends React.Component {
         };
         const newState = {
           ...prevState,
-          newToDo: "", //flush 작업(비워버리는거)
+          newToDo: "",
           toDos: {
             ...prevState.toDos,
             ...newToDoObject
@@ -127,12 +122,10 @@ export default class App extends React.Component {
   _unCompleteToDo = id => {
     this.setState(prevState => {
       const newState = {
-        ...prevState, //이전에 있던것들은 주고!
+        ...prevState,
         toDos: {
-          // 거기에 +toDos
           ...prevState.toDos,
           [id]: {
-            //id를 가지고 있는 새로운게 있다면 그걸 덮어쓰고!
             ...prevState.toDos[id],
             isCompleted: false
           }
@@ -178,8 +171,6 @@ export default class App extends React.Component {
 
   _saveToDos = newToDos => {
     const saveToDos = AsyncStorage.setItem("toDos", JSON.stringify(newToDos));
-    // key가 toDos, value가 newToDos
-    // JSON은 글로벌 오브젝트, obj인 newToDos를 string으로 바꿔줘!
   };
 }
 
@@ -208,8 +199,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 5,
         shadowOffset: {
-          height: -1, //위아래로 안움직이게
-          width: 0 // 보더 안에 있도록. 1로 설정하면 움직임
+          height: -1,
+          width: 0
         }
       },
       android: {

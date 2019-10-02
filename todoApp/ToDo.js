@@ -13,7 +13,6 @@ const { width, height } = Dimensions.get("window");
 
 export default class ToDo extends Component {
   constructor(props) {
-    //_startEditing에서 prop을 state에 복사하는 대신 constructor를 사용해서 컴포넌트가 렌더하자마자 할일리스트를 가져오도록
     super(props);
     this.state = { isEditing: false, toDoValue: props.text };
   }
@@ -29,7 +28,7 @@ export default class ToDo extends Component {
   };
   render() {
     const { isEditing, toDoValue } = this.state;
-    const { text, id, deleteToDo, isCompleted } = this.props; //isCompleted를 state말고 props에서 살펴보자! 그러면 이제 todo.js말고 app.js에서 작업이 됨.
+    const { text, id, deleteToDo, isCompleted } = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.column}>
@@ -50,9 +49,9 @@ export default class ToDo extends Component {
               ]}
               value={toDoValue}
               multiline={true}
-              onChangeText={this._controllInput} // 텍스트 수정할수 있도록
+              onChangeText={this._controllInput}
               returnKeyType={"done"}
-              onBlur={this._finishEditing} // blur(다른칸 터치하면)하면 편집종료!
+              onBlur={this._finishEditing}
             />
           ) : (
             <Text
@@ -65,7 +64,7 @@ export default class ToDo extends Component {
             </Text>
           )}
         </View>
-        
+
         {isEditing ? (
           <View style={styles.actions}>
             <TouchableOpacity onPressOut={this._finishEditing}>
@@ -81,7 +80,12 @@ export default class ToDo extends Component {
                 <Text style={styles.actionText}> ✏️ </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPressOut={() => deleteToDo(id)}>
+            <TouchableOpacity
+              onPressOut={event => {
+                event.stopPropagation;
+                deleteToDo(id);
+              }}
+            >
               <View style={styles.actionContainer}>
                 <Text style={styles.actionText}> ❌ </Text>
               </View>
@@ -91,8 +95,8 @@ export default class ToDo extends Component {
       </View>
     );
   }
-  _toggleComplete = () => {
-    //isCompleted를 state말고 props에서 살펴보자!
+  _toggleComplete = event => {
+    event.stopPropagation();
     const { isCompleted, unCompleteToDo, completeToDo, id } = this.props;
     if (isCompleted) {
       unCompleteToDo(id);
@@ -100,10 +104,12 @@ export default class ToDo extends Component {
       completeToDo(id);
     }
   };
-  _startEditing = () => {
+  _startEditing = event => {
+    event.stopPropagation();
     this.setState({ isEditing: true });
   };
-  _finishEditing = () => {
+  _finishEditing = event => {
+    event.stopPropagation();
     const { toDoValue } = this.state;
     const { id, updateToDo } = this.props;
     updateToDo(id, toDoValue);
